@@ -11,7 +11,6 @@ import {
 import SampleData from "../../Data/SampleData.js";
 import ObjectGraphNodeDetail from "../objectGraphNodeDetail/ObjectGraphNodeDetail";
 
-type dataType = string | number | boolean;
 export interface ItemType {
   data:
     | ItemType
@@ -29,10 +28,12 @@ const ObjectGraphNav = () => {
     | OrderItem
     | PaymentDetails
     | ShippingDetails
-  >({ data: {name:'No Value Selected'}});
+  >({ name:'No Value Selected' });
   const [orderShow, setOrderShow] = useState(true);
-  const [nestedShow, setNestedSHow] = useState(false);
+  const [childKey,setChildKey] = useState<string | number>('')
+  const [parentKey  ,setParentKey] = useState('')
   const [showNested, setShowNested] = useState({});
+  const [valueInput,setValueInput] = useState('');
 
   return (
     <div className="mainConatiner">
@@ -60,7 +61,6 @@ const ObjectGraphNav = () => {
                   onClick={(e:React.MouseEvent<HTMLLIElement, MouseEvent>) => {
                     e.stopPropagation()
                     e.preventDefault();
-                    setNestedSHow(prevNestedShow => !prevNestedShow);
                     setShowNested((prevShowNested) => ({
                       ...prevShowNested,
                       [index]: !prevShowNested[index],
@@ -76,7 +76,11 @@ const ObjectGraphNav = () => {
                             <li
                               key={idx}
                               onClick={(e:React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+                                setChildKey(orderItem)
+                                setParentKey(item)
+                                setValueInput(SampleData.order[item][idx])
                                 e.stopPropagation();
+                                setChildKey(idx)
                                 setListItemData({ [item]: SampleData.order[item][idx] });
                               }}
                             >
@@ -89,9 +93,13 @@ const ObjectGraphNav = () => {
                               <li
                                 key={idx}
                                 onClick={(e:React.MouseEvent<HTMLLIElement, MouseEvent>) => {
+                                  setChildKey(nestedItem)
+                                  setParentKey(item)
                                   e.stopPropagation();
+                                  setValueInput(SampleData.order[item][nestedItem])
+
                                   setListItemData({
-                                    [item]: { [nestedItem]: SampleData.order[item][nestedItem] },
+                                    [item]: { [nestedItem]: SampleData.order[item][nestedItem] },//ship:{addressline:'}
                                   });
                                 }}
                               >
@@ -110,10 +118,7 @@ const ObjectGraphNav = () => {
       </ul>
     </div>
     <div className="nodeContainer">
-    {
-        //@ts-ignore
-        <ObjectGraphNodeDetail data={listItemData} />
-      }
+      <ObjectGraphNodeDetail data={listItemData} value={valueInput}  originalData={{...SampleData}} childKey={childKey} parentKey={parentKey}/>
     </div>
       
 

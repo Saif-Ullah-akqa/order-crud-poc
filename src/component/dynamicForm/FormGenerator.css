@@ -1,0 +1,14 @@
+.form-item-content-container{
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+}
+.form-label{
+    padding-right: 1rem;
+    text-align: left;
+}
+.form-button-container{
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-evenly;
+}

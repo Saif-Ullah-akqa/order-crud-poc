@@ -1,27 +1,58 @@
-import {Order,Customer,OrderItem,PaymentDetails,ShippingDetails} from "../../utils/types/type"
+import {
+  Order,
+  Customer,
+  OrderItem,
+  PaymentDetails,
+  ShippingDetails,
+} from "../../utils/types/type";
+import FormGenerator from "../dynamicForm/FormGenerator";
+import { ItemType } from "../objectGraphNav/ObjectGraphNav";
 
-type NodeType= Order |Customer |OrderItem | PaymentDetails | ShippingDetails
-interface itemType{
-    data:NodeType
-}
+export type NodeType =
+  | Order
+  | Customer
+  | OrderItem
+  | PaymentDetails
+  | ShippingDetails;
 
-const ObjectGraphNodeDetail = (data: itemType) => {
-    // function getObjKey(obj,value){
-    //     console.log( Object.keys(obj).find(key=>obj[key]===value))
-    // }
-  console.log(data,'dataa')
-  return(
-  Object.values(data.data[Object.keys(data.data)[0]]).map((item:any,index)=>{
-    console.log(item===true)
-if(item===true){
-    return<div>PAID</div>
-}else if(item===false){
-    return<div>NOT PAID</div>
-}else{
-    // getObjKey(data.data[0],item)
-    return(<div key={index}>{item}</div>)
-}
-    }))
+  interface ObjectGraphNodeProps{
+    originalData:NodeType 
+    childKey:string|number
+    parentKey:string
+    data: ItemType
+    | Order
+    | Customer
+    | OrderItem
+    | PaymentDetails
+    | ShippingDetails
+    value:{ProductName:string,quantity:number} | string
+
+  }
+const ObjectGraphNodeDetail = (props:ObjectGraphNodeProps) => {
+  // Callback function for form submission
+  const handleSubmit = (updatedData: NodeType) => {
+    console.log({ updatedData });
+    // Implement your logic to post the updated data to the API endpoint
+  };
+
+  return (
+    <>
+      <div className="">
+      {props.parentKey === "orderItems" ? (
+      <h3>{typeof props.value === "object" ? props.value.ProductName : props.value}</h3>
+    ) : (
+      <h3>{props.childKey}</h3>
+    )}
+      </div>
+      <FormGenerator
+        originalData={props.originalData}
+        childKey={props.childKey}
+        parentKey={props.parentKey}
+        data={props.data}
+        onSubmit={handleSubmit}
+      />
+    </>
+  );
 };
 
 export default ObjectGraphNodeDetail;

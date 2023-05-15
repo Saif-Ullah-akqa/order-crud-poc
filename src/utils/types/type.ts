@@ -4,25 +4,21 @@ export interface Order {
     paymentDetails?: PaymentDetails,
     shippingDetails?: ShippingDetails
 }
-export 
-interface Customer {
+export interface Customer {
     name?: string,
     mobile?: number,
     email?: string,
     dateOfBirth?: Date
 }
-export 
-interface OrderItem {
+export interface OrderItem {
     productName?: string,
     quantity?: number
 }
-export 
-interface PaymentDetails {
+export interface PaymentDetails {
     paymentMode?: "Credit Card" | "Debit Card" | "Netbanking" | "UPI"
     paid?: boolean
 }
-export 
-interface ShippingDetails {
+export interface ShippingDetails {
     addressLine1?: string,
     addressLine2?: string,
     city?: string,
@@ -31,6 +27,7 @@ interface ShippingDetails {
 }
 
 export enum State {
-  Delhi='Delhi',
-  Haryana='Haryana'
+  Delhi = 'Delhi',
+  Haryana = 'Haryana',
+  UP = 'UP'
 }

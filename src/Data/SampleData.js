@@ -25,7 +25,7 @@ var SampleData={
       "addressLine1": "Shankar Chowk",
       "addressLine2": "DLF Cyber Park",
       "city": "Gurugram",
-      "state": State.Haryana,
+      "state": State.Delhi,
       "pincode": 122001
     }
   }
