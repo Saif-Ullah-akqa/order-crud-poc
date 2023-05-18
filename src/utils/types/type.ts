@@ -15,7 +15,7 @@ export interface OrderItem {
     quantity?: number
 }
 export interface PaymentDetails {
-    paymentMode?: "Credit Card" | "Debit Card" | "Netbanking" | "UPI"
+    paymentMode?: PaymentMode
     paid?: boolean
 }
 export interface ShippingDetails {
@@ -27,7 +27,9 @@ export interface ShippingDetails {
 }
 
 export enum State {
-  Delhi = 'Delhi',
-  Haryana = 'Haryana',
-  UP = 'UP'
+    Delhi = 'Delhi',
+    Haryana = 'Haryana',
+    UP = 'UP'
 }
+
+export type PaymentMode="Credit Card" | "Debit Card" | "Netbanking" | "UPI"
