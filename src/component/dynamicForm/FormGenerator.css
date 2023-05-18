@@ -9,6 +9,6 @@
 }
 .form-button-container{
     margin-top: 2rem;
-    display: flex;
+    display: inline-block;
     justify-content: space-evenly;
 }

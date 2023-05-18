@@ -34,22 +34,8 @@ const ObjectGraphNodeDetail = (props: ObjectGraphNodeProps) => {
     console.log({ updatedData });
     // Implement your logic to post the updated data to the API endpoint
   };
-  console.log(props.value)
   return (
     <>
-      {props.parentKey && (
-        <div className="">
-          {props.parentKey === "orderItems" ? (
-            <h3>
-              {props.value && typeof props.value === "object"
-                ? props.value.ProductName
-                : String(props.value)}
-            </h3>
-          ) : (
-            <h3>{props.childKey}</h3>
-          )}
-        </div>
-      )}
       <FormGenerator
         originalData={props.originalData}
         childKey={props.childKey}

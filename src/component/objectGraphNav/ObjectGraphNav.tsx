@@ -30,7 +30,6 @@ const ObjectGraphNav = () => {
   const [showNested, setShowNested] = useState({});
   const [valueInput, setValueInput] = useState("");
   const [originalData, setOriginalData] = useState(SampleData.order);
-
   return (
     <div className="mainConatiner">
       <div className="navContainer">
@@ -43,7 +42,7 @@ const ObjectGraphNav = () => {
               setOrderShow(!orderShow);
             }}
           >
-            Order
+           {Object.keys(SampleData)[0]}
             {orderShow && (
               <ul>
                 {Object.keys(originalData).map((item, index) => {
@@ -56,11 +55,11 @@ const ObjectGraphNav = () => {
                       onClick={(
                         e: React.MouseEvent<HTMLLIElement, MouseEvent>
                       ) => {
-                        !Array.isArray(originalData[item]) &&
+                        !Array.isArray(originalData[item]) && !showNested[index] &&
                           setListItemData({ [item]: originalData[item] });
-                        !Array.isArray(originalData[item]) &&
+                        !Array.isArray(originalData[item]) && !showNested[index] &&
                           setParentKey(item);
-                        !Array.isArray(originalData[item]) && setChildKey(item);
+                        !Array.isArray(originalData[item]) && !showNested[index] && setChildKey(item);
                         e.stopPropagation();
                         e.preventDefault();
                         setShowNested((prevShowNested) => ({
@@ -72,12 +71,12 @@ const ObjectGraphNav = () => {
                       {item}
                       {Array.isArray(originalData[item]) && (
                         <ul>
-                          {originalData[item].map((orderItem, idx) => {
+                          {originalData[item].map((ArrayItem, idx) => {
                             return (
                               <li
                                 key={idx}
                                 onClick={(e) => {
-                                  setChildKey(orderItem);
+                                  setChildKey(ArrayItem);
                                   setParentKey(item);
                                   setValueInput(originalData[item][idx]);
                                   e.stopPropagation();
@@ -87,19 +86,19 @@ const ObjectGraphNav = () => {
                                   });
                                 }}
                               >
-                                {orderItem && orderItem.ProductName}
-                                <button
+                                {ArrayItem && ArrayItem[Object.keys(ArrayItem)[0]]}
+                                <button className="list-item-remove"
                                   onClick={(e) => {
                                     e.stopPropagation();
 
-                                    const updatedOrder = [
+                                    const updatedArray = [
                                       ...originalData[item],
                                     ];
-                                    updatedOrder.splice(idx, 1);
-                                    originalData[item] = updatedOrder;
+                                    updatedArray.splice(idx, 1);
+                                    originalData[item] = updatedArray;
                                     setOriginalData((prevData) => ({
                                       ...prevData,
-                                      [item]: updatedOrder,
+                                      [item]: updatedArray,
                                     }));
 
                                     if (
@@ -112,7 +111,7 @@ const ObjectGraphNav = () => {
                                     }
                                   }}
                                 >
-                                  -
+                                  x
                                 </button>
                               </li>
                             );
@@ -120,27 +119,27 @@ const ObjectGraphNav = () => {
                         </ul>
                       )}
 
-                      {Array.isArray(originalData[item]) && (
+                      {Array.isArray(originalData[item]) && showNested[index] &&  (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             e.preventDefault();
-                            const updatedOrder = [...originalData[item]];
-                            const newOrderItem = {
+                            const updatedArray = [...originalData[item]];
+                            const newArrayItem = {
                               ProductName: `new item ${
-                                updatedOrder.length + 1
+                                updatedArray.length + 1
                               }`,
                               quantity: 0,
                             };
-                            setChildKey(updatedOrder.length);
-                            updatedOrder.push(newOrderItem);
+                            setChildKey(updatedArray.length);
+                            updatedArray.push(newArrayItem);
                             setOriginalData((prev) => ({
                               ...prev,
-                              [item]: updatedOrder,
+                              [item]: updatedArray,
                             })); // Trigger re-render
                           }}
                         >
-                          +
+                          Add New Field
                         </button>
                       )}
                     </li>

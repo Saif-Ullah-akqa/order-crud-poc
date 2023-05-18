@@ -4,6 +4,7 @@ import {
   Order,
   OrderItem,
   PaymentDetails,
+  PaymentMode,
   ShippingDetails,
   State,
 } from "../../utils/types/type";
@@ -37,11 +38,9 @@ function FormGenerator({
   originalData,
   parentKey,
 }: FormGeneratorProps) {
-  console.log({ originalData });
   const [formData, setFormData] = useState<{
     [key: string]: string | number | boolean | OrderItem[];
   }>(JSON.parse(JSON.stringify(originalData)));
-
   useEffect(() => {
     setFormData(JSON.parse(JSON.stringify(originalData)));
   }, [originalData]);
@@ -50,163 +49,184 @@ function FormGenerator({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
     let parsedValue = null;
-    if (parentKey === "orderItems") {
-      if (name === "quantity") {
-        parsedValue = parseInt(value, 10);
-      }
-      let prevOrderItem = formData.orderItems[childKey];
-      prevOrderItem[name] = parsedValue ? parsedValue : value;
-      let updatedOrderItems = formData.orderItems;
-      updatedOrderItems[childKey] = prevOrderItem;
-      setFormData(
-        (prevFormData) =>
-          ({
-            ...prevFormData,
-            orderItems: updatedOrderItems as OrderItem[],
-          } as { [key: string]: string | number | boolean | OrderItem[] })
-      );
+    if (Array.isArray(formData[parentKey])) {
+      //@ts-ignore
+      const prevArrayItems = [...formData[parentKey]];
+      const prevArrayItem = { ...prevArrayItems[childKey] };
+      prevArrayItem[name] = parsedValue ? parsedValue : value;
+      prevArrayItems[childKey] = prevArrayItem;
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [parentKey]: prevArrayItems,
+      }));
     } else {
-      if (name === "pincode") {
-        var intValue = parseInt(value, 10);
-      }
       setFormData((prevFormData) => ({
         ...prevFormData,
         [parentKey]: {
           //@ts-ignore
           ...prevFormData[parentKey],
-          [name]: intValue ? intValue : value,
+          [name]: value,
         },
       }));
     }
   };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    onSubmit(formData);
+    onSubmit(formData || {});
     e.preventDefault();
   };
 
   const handleReset = () => {
-    const originalOrderObject = JSON.parse(JSON.stringify(originalData));
-    if (parentKey === "orderItems") {
-      const originalOrder = originalOrderObject.orderItems;
+    const originalArrayObject = JSON.parse(JSON.stringify(originalData)) || {};
+    if (Array.isArray(formData[parentKey])) {
+      const originalArray = originalArrayObject[parentKey];
       setFormData((prevFormData) => ({
         ...prevFormData,
-        orderItems: originalOrder,
+        [parentKey]: originalArray,
       }));
     } else {
-      const originalValue = originalOrderObject[parentKey];
-      setFormData((prevFormData: any) => {
-        return {
-          ...prevFormData,
-          //@ts-ignore
-          [parentKey]: { ...prevFormData, [parentKey]: originalValue },
-        };
-      });
+      const originalValue = originalArrayObject[parentKey];
+      setFormData((prevFormData: any) => ({
+        ...prevFormData,
+        [parentKey]: originalValue,
+      }));
     }
   };
+
   if (parentKey === "") {
     return <div>Select Item From Menu</div>;
-  } else if (parentKey === "orderItems") {
+  } else if (Array.isArray(formData[parentKey])) {
+    const title = Object.values(data[parentKey])[0];
+    const itemArr = formData[parentKey][childKey];
     return (
-      <form onSubmit={handleSubmit} onReset={handleReset}>
-        <div className="form-item-content-container">
-          <label htmlFor="ProductName" className="form-label">
-            Product Name
-          </label>
-          <input
-            type="text"
-            name="ProductName"
-            onChange={handleChange}
-            value={formData.orderItems[childKey]?.ProductName || ""}
-          ></input>
-        </div>
-        <div className="form-item-content-container">
-          <label htmlFor="quantity" className="form-label">
-            Quantity
-          </label>
-          <input
-            type="number"
-            name="quantity"
-            onChange={handleChange}
-            value={parseInt(formData.orderItems[childKey]?.quantity) as number}
-          ></input>
-        </div>
-        <div className="form-button-container">
-          <button type="submit">Submit</button>
-          <button type="reset">Reset</button>
-        </div>
-      </form>
+      <div>
+        <h3> {title as string}</h3>
+        <form onSubmit={handleSubmit} onReset={handleReset}>
+          {itemArr &&
+            formData &&
+            Object.entries(itemArr).map(([key, value]) => {
+              return (
+                <div key={key} className="form-item-content-container">
+                  <label htmlFor={key} className="form-label">
+                    {key}
+                  </label>
+                  {typeof value === "number" ? (
+                    <input
+                      type="number"
+                      name={key}
+                      id={key}
+                      value={value as number}
+                      onChange={handleChange}
+                    />
+                  ) : typeof value === "boolean" ? (
+                    <select
+                      name={key}
+                      id={key}
+                      value={formData[parentKey][key]}
+                      onChange={handleChange}
+                    >
+                      <option value="true">True</option>
+                      <option value="false">False</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      name={key}
+                      id={key}
+                      value={value as string}
+                      onChange={handleChange}
+                    />
+                  )}
+                </div>
+              );
+            })}
+
+          <div className="form-button-container">
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+          </div>
+        </form>
+      </div>
     );
   } else {
+    const paymentModes: PaymentMode[] = [
+      "Credit Card",
+      "Debit Card",
+      "Netbanking",
+      "UPI",
+    ];
     return (
-      <form onSubmit={handleSubmit} onReset={handleReset}>
-        {Object.entries(Object.values(data)[0]).map(([key, value]) => {
-          return (
-            <div key={key} className="form-item-content-container">
-              <label htmlFor={key} className="form-label">
-                {key}
-              </label>
-              {key === "paymentMode" ? (
-                <select
-                  name={key}
-                  id={key}
-                  value={formData[parentKey][childKey]}
-                  onChange={handleChange}
-                >
-                  <option value="Credit Card">Credit Card</option>
-                  <option value="Debit Card">Debit Card</option>
-                  <option value="Netbanking">Netbanking</option>
-                  <option value="UPI">UPI</option>
-                </select>
-              ) : typeof value === "boolean" ? (
-                <select
-                  name={key}
-                  id={key}
-                  value={formData[parentKey][key]}
-                  onChange={handleChange}
-                >
-                  <option value="true">True</option>
-                  <option value="false">False</option>
-                </select>
-              ) : typeof value === "number" ? (
-                <input
-                  type="number"
-                  name={key}
-                  id={key}
-                  value={parseInt(formData[parentKey][key], 10)}
-                  onChange={handleChange}
-                />
-              ) : (Object.values(State) as unknown[]).includes(value) ? (
-                <select
-                  name={key}
-                  id={key}
-                  value={formData[parentKey][key]}
-                  onChange={handleChange}
-                >
-                  {Object.values(State).map((state) => (
-                    <option key={state} value={state}>
-                      {state}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  name={key}
-                  id={key}
-                  value={formData[parentKey][key]}
-                  onChange={handleChange}
-                />
-              )}
-            </div>
-          );
-        })}
-        <div className="form-button-container">
-          <button type="submit">Submit</button>
-          <button type="reset">Reset</button>
-        </div>
-      </form>
+      <div>
+        <h3>{parentKey}</h3>
+        <form onSubmit={handleSubmit} onReset={handleReset}>
+          {Object.entries(Object.values(data)[0]).map(([key, value]) => {
+            return (
+              <div key={key} className="form-item-content-container">
+                <label htmlFor={key} className="form-label">
+                  {key}
+                </label>
+                {paymentModes.includes(value as PaymentMode) ? (
+                  <select
+                    name={key}
+                    id={key}
+                    value={formData[parentKey][childKey]}
+                    onChange={handleChange}
+                  >
+                    {paymentModes.map((paymentMethod,idx) => {
+                      return (
+                        <option key={idx} value={paymentMethod}>{paymentMethod}</option>
+                      );
+                    })}
+                  </select>
+                ) : typeof value === "boolean" ? (
+                  <select
+                    name={key}
+                    id={key}
+                    value={formData[parentKey][key]}
+                    onChange={handleChange}
+                  >
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                ) : typeof value === "number" ? (
+                  <input
+                    type="number"
+                    name={key}
+                    id={key}
+                    value={parseInt(formData[parentKey][key], 10) as number}
+                    onChange={handleChange}
+                  />
+                ) : (Object.values(State) as unknown[]).includes(value) ? (
+                  <select
+                    name={key}
+                    id={key}
+                    value={formData[parentKey][key]}
+                    onChange={handleChange}
+                  >
+                    {Object.values(State).map((state) => (
+                      <option key={state} value={state}>
+                        {state}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    name={key}
+                    id={key}
+                    value={formData[parentKey][key]}
+                    onChange={handleChange}
+                  />
+                )}
+              </div>
+            );
+          })}
+          <div className="form-button-container">
+            <button type="submit">Submit</button>
+            <button type="reset">Reset</button>
+          </div>
+        </form>
+      </div>
     );
   }
 }

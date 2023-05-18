@@ -38,11 +38,18 @@ li:hover{
   justify-content: space-between;
 }
 .navContainer{
+  width: calc(40% - 100px);
+  margin: 0 5px 10px 0;
   padding-left: 5rem;
   padding-right: 5rem;
   border: 1px solid black;
 }
 .nodeContainer{
-  margin-right: 5rem;
-  margin: 5rem;
+  max-width: 500px;
+  width: calc(40% - 10px);
+  margin: 0 50px 10px 5px;
+}
+.list-item-remove{
+margin-left: 10px;
+padding:0px 5px;
 }
